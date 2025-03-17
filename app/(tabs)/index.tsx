@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { Image } from 'expo-image'
+import ImageViewer from '@/components/ImageViewer'
+import Button from '@/components/Button'
 
 const ImagePlaceholder = require('@/assets/images/background-image.png')
 
@@ -7,7 +9,11 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <Image source={ImagePlaceholder} style={styles.image} />
+        <ImageViewer imgSource={ImagePlaceholder} />
+      </View>
+      <View style={styles.footerContainer}>
+        <Button theme="primary" label="Choose a photo" />
+        <Button label="Use this photo" />
       </View>
     </View>
   )
@@ -22,10 +28,10 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 1,
+    paddingTop: 28,
   },
-  image: {
-    width: 320,
-    height: 440,
-    borderRadius: 18,
+  footerContainer: {
+    flex: 1 / 3,
+    alignItems: 'center',
   },
 })
