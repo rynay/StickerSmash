@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import * as MediaLibrary from 'expo-media-library'
+import { captureRef } from 'react-native-view-shot'
 import { StyleSheet, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import ImageViewer from '@/components/ImageViewer'
@@ -14,6 +16,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 const ImagePlaceholder = require('@/assets/images/background-image.png')
 
 export default function Index() {
+  const [status, requestPermission] = MediaLibrary.usePermissions()
+
+  if (status === null) requestPermission()
+
+  const imageRef = useRef<View>(null)
+
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [showAddOptions, setShowAppOptions] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -44,23 +52,39 @@ export default function Index() {
   const onModalClose = () => {
     setIsModalVisible(false)
   }
-  const onSaveImage = async () => {}
-
   const onEmojiSelect = (image: ImageSource) => {
     setSelectedEmoji(image)
     onModalClose()
   }
 
+  const onSaveImage = async () => {
+    try {
+      const localUri = await captureRef(imageRef, {
+        height: 440,
+        quality: 1,
+      })
+
+      await MediaLibrary.saveToLibraryAsync(localUri)
+      if (localUri) {
+        alert('Saved!')
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
-        <ImageViewer
-          imgSource={ImagePlaceholder}
-          selectedImage={selectedImage}
-        />
-        {selectedEmoji && (
-          <EmojiSticker imageSize={40} stickerSource={selectedEmoji} />
-        )}
+        <View ref={imageRef} collapsable={false}>
+          <ImageViewer
+            imgSource={ImagePlaceholder}
+            selectedImage={selectedImage}
+          />
+          {selectedEmoji && (
+            <EmojiSticker imageSize={40} stickerSource={selectedEmoji} />
+          )}
+        </View>
       </View>
       <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
         <EmojiList onSelect={onEmojiSelect} />
